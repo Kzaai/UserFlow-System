@@ -1,16 +1,44 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+import json
+import os
 
-app = FastAPI()
 
 
-class UserRegistration(BaseModel):
+
+# 1. NAJPIERW definicja "Koperty" (Modelu)
+class User(BaseModel):
     login: str
     haslo: str
     firma: str
 
+# 1. Ścieżka do bazy (pamiętasz: os.path.join dla bezpieczeństwa)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "uzytkownicy.json")
+
+# 2. Funkcja pomocnicza
+def wczytaj_baze():
+    if not os.path.exists(DB_PATH):
+        return [] # Zwracamy listę, bo będziemy trzymać wielu użytkowników
+    with open(DB_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+app = FastAPI()
+
+
+
+
 @app.post("/rejestracja")
-def register(user: UserRegistration):
-    # Logika: Tutaj serwer "łapie" paczkę z frontendu
-    print(f"Próba rejestracji: {user.login} z firmy {user.firma}")
-    return {"status": "Sukces", "wiadomosc": f"Witaj {user.login} w systemie!"}
+def register(user: User):
+    baza = wczytaj_baze()
+
+    #Zamieniamy usera na słownik
+
+    nowy_uzytkownik = user.dict()
+
+    baza.append(nowy_uzytkownik) #Dodajemy do listy
+
+    #Zapisujemy do pliku 
+
+    with open(DB_PATH,"w", encoding="utf-8") as f:
+        json.dump(baza, f , indent=4, ensure_ascii=False)

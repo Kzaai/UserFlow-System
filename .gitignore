@@ -1,3 +1,15 @@
+# Ignoruj środowiska wirtualne w każdym podfolderze
 **/.venv/
+**/venv/
+
+# Ignoruj pliki tymczasowe Pythona
 **/__pycache__/
-*.json
+*.pyc
+
+# Ignoruj bazy danych (pliki JSON z danymi użytkowników)
+# Dzięki temu Twoje testowe hasła nie trafią na GitHub
+backend/*.json
+frontend/*.json
+
+# Ignoruj ustawienia VS Code
+.vscode/
