@@ -42,3 +42,14 @@ def register(user: User):
 
     with open(DB_PATH,"w", encoding="utf-8") as f:
         json.dump(baza, f , indent=4, ensure_ascii=False)
+
+@app.get("/uzytkownicy")
+def get_users():
+    baza = wczytaj_baze()
+    
+    # Dodajemy informację o ilości, żeby frontend wiedział co dostał
+    return {
+        "status": "success",
+        "count": len(baza),
+        "users": baza 
+        }

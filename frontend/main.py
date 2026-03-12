@@ -43,7 +43,40 @@ class Register(ctk.CTk):
 
         self.register_button = ctk.CTkButton(self.tabview.tab("Rejestracja"), text = "Zarejestruj", command = self.zaloz_konto)
         self.register_button.pack(pady = 10)
+        #-----------Zakładka Admina------------------
+        self.textbox = ctk.CTkTextbox(self.tabview.tab("Admin"), width = 400, height = 300 , state = "disabled")
+        self.textbox.pack(pady = 20)
 
+        self.dowland_button = ctk.CTkButton(self.tabview.tab("Admin"), text = "Pobierz uzytkowników", command = self.pobierz_uzytkowników)
+        self.dowland_button.pack(pady = 10)
+
+
+    def pobierz_uzytkowników(self):
+        url = "http://127.0.0.1:8000/uzytkownicy"
+        try:
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                odpowidz_z_serwera = response.json()
+
+                #Wyciagamy userds
+                lista_uzytkownikow = odpowidz_z_serwera["users"]
+                self.textbox.configure(state = "normal")
+                self.textbox.delete("1.0", "end")
+
+                #Petla idzie po liscie slownikow
+                for user in lista_uzytkownikow:
+                    tekst = f"Login: {user['login']}, Firma: {user['firma']}\n"
+                    self.textbox.insert("end", tekst)   
+
+                self.textbox.configure(state = "disabled")
+
+                print(f"Pobrano {len(lista_uzytkownikow)} uzytkowników.")
+                
+
+            else:
+                print("Serwer odrzucił prośbę. Kod:{response.status_code}")
+        except requests.exceptions.ConnectionError:
+            print("Brak połączenia z serwerem.")
         
     def zaloz_konto(self):
         login = self.login_entry.get()
