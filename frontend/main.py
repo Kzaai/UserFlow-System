@@ -67,6 +67,11 @@ class Register(ctk.CTk):
         self.dowland_button = ctk.CTkButton(self.tabview.tab("Admin"), text = "Pobierz uzytkowników", command = self.pobierz_uzytkowników)
         self.dowland_button.pack(pady = 10)
 
+        self.status_dot = ctk.CTkLabel(self.tabview.tab("Admin"), text = "●", text_color = "grey")
+        self.status_dot.pack(pady = 10)
+
+        self.check_api_status()
+
 
     def pobierz_uzytkowników(self):
         url = "http://127.0.0.1:8000/uzytkownicy"
@@ -135,6 +140,17 @@ class Register(ctk.CTk):
         except requests.exceptions.ConnectionError:
             print("Brak połączenia z serwerem.")
 
+    def check_api_status(self):
+        url = "http://127.0.0.1:8000/ping"
+        try:
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                self.status_dot.configure(text = "●", text_color = "green")
+            else:
+                self.status_dot.configure(text = "●", text_color = "red")
+        except requests.exceptions.ConnectionError:
+            self.status_dot.configure(text = "●", text_color = "red")
+        self.after(5000, self.check_api_status)
             
 
 

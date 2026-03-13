@@ -64,3 +64,8 @@ def logowanie(user: User): # Używamy tego samego modelu User co przy rejestracj
     
     # Jeśli pętla się skończy i nic nie znajdzie:
     raise HTTPException(status_code=401, detail="Błędny login lub hasło")
+
+
+@app.get("/ping")
+def ping():
+    return {"status": "success", "message": "Pong!"}
