@@ -17,6 +17,7 @@ class Register(ctk.CTk):
         self.tabview = ctk.CTkTabview(self, width = 400, height = 300)
         self.tabview.pack(padx = 20, pady = 20)
         self.tabview.add("Rejestracja")
+        self.tabview.add("Logowanie")
         self.tabview.add("Admin")
         
 
@@ -43,6 +44,22 @@ class Register(ctk.CTk):
 
         self.register_button = ctk.CTkButton(self.tabview.tab("Rejestracja"), text = "Zarejestruj", command = self.zaloz_konto)
         self.register_button.pack(pady = 10)
+
+        #-----------Zakładka Logowania------------------
+        self.podajlogin = ctk.CTkLabel(self.tabview.tab("Logowanie"), text = "Podaj login: ")
+        self.podajlogin.pack(pady = 10)
+
+        self.logowanie_entry = ctk.CTkEntry(self.tabview.tab("Logowanie"), width = 200)
+        self.logowanie_entry.pack(pady = 10)
+
+        self.zaloguj_haslo =  ctk.CTkLabel(self.tabview.tab("Logowanie"), text = "Podaj hasło: ")
+        self.zaloguj_haslo.pack(pady = 10)
+
+        self.zaloguj_haslo_entry = ctk.CTkEntry(self.tabview.tab("Logowanie"), width = 200)
+        self.zaloguj_haslo_entry.pack(pady = 10)
+
+        self.zaloguj_button = ctk.CTkButton(self.tabview.tab("Logowanie"), text = "Zaloguj", command = self.zaloguj)
+        self.zaloguj_button.pack(pady = 10)
         #-----------Zakładka Admina------------------
         self.textbox = ctk.CTkTextbox(self.tabview.tab("Admin"), width = 400, height = 300 , state = "disabled")
         self.textbox.pack(pady = 20)
@@ -97,7 +114,26 @@ class Register(ctk.CTk):
                 print("Serwer odrzucił paczke. Kod:{response.status_code}")
         except requests.exceptions.ConnectionError:
             print("Brak połączenia z serwerem.")
+    def zaloguj(self):
+        login = self.logowanie_entry.get()
+        haslo = self.zaloguj_haslo_entry.get()
+        
+        url = "http://127.0.0.1:8000/logowanie"
+        data = {"login": login, "haslo": haslo, "firma": ""} # Firma może być pusta przy logowaniu
 
+        try:
+            response = requests.post(url, json=data, timeout=5)
+            
+            if response.status_code == 200:
+                print("HURAA! Zalogowano.")
+                # Tutaj możesz np. zmienić kolor przycisku na zielony
+            elif response.status_code == 401:
+                print("Błąd: Niepoprawne dane logowania.")
+            else:
+                print(f"Błąd serwera: {response.status_code}")
+                
+        except requests.exceptions.ConnectionError:
+            print("Brak połączenia z serwerem.")
 
             
 

@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI , HTTPException
 from pydantic import BaseModel
 import json
 import os
@@ -53,3 +53,14 @@ def get_users():
         "count": len(baza),
         "users": baza 
         }
+
+@app.post("/logowanie")
+def logowanie(user: User): # Używamy tego samego modelu User co przy rejestracji
+    baza = wczytaj_baze()
+
+    for uzytkownik in baza:
+        if uzytkownik["login"] == user.login and uzytkownik["haslo"] == user.haslo:
+            return {"status": "success", "message": "Zalogowano pomyślnie", "user": uzytkownik["login"]}
+    
+    # Jeśli pętla się skończy i nic nie znajdzie:
+    raise HTTPException(status_code=401, detail="Błędny login lub hasło")
