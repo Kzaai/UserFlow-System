@@ -1,20 +1,54 @@
-# 🚀 UserFlow System v1.0
+🚀 UserFlow System v1.1
+A professional, two-tier desktop management system built with Python and FastAPI. The project demonstrates a full data flow between a modern GUI and a RESTful backend, including role-based access and real-time monitoring.
 
-A modern, two-tier system for user registration and management.
+🏗️ Architecture & Tech Stack
+Backend: High-performance API built with FastAPI.
 
-Update: Basic registration flow is functional. Data is sent via POST requests and stored in a local JSON database.
+Data Validation: Strict modeling using Pydantic.
 
-### 🏗️ Architecture:
-* **Backend (`/backend`):** High-performance API built with **FastAPI**.
-* **Frontend (`/frontend`):** Desktop application built with **CustomTkinter**.
+Database: Persistent storage using a flat-file JSON system (Scalable to SQL).
 
-### 🛠️ Backend Technical Details:
-* **Data Modeling:** Used `Pydantic` (BaseModel) for strict data validation. 
-* **POST Method:** Secure user registration via hidden payload (Request Body). 
-* **Storage:** Persistent flat-file database using **JSON**.
+Frontend: Modern Desktop UI built with CustomTkinter.
+
+Frame Switching: Dynamic UI state management for seamless transitions between Auth and Dashboard.
+
+Asynchronous Tasks: Background monitoring and data fetching without UI freezing.
+
+🌟 Key Features
+Secure Authentication: Integrated login and registration flow with masked password inputs.
+
+Dynamic Dashboard: Post-login user interface that adapts to the user's role.
+
+Real-time API Heartbeat: A background "Status Dot" monitor that pings the server every 5 seconds using recursive .after() methods.
+
+Role-Based Access (RBAC): Hidden Administrative Panel that unlocks only for users with specific credentials.
+
+External API Integration (In Progress): Live weather data fetching using the OpenWeatherMap API to enhance the user dashboard.
+
+1. Backend Setup
+
+  cd backend
+  pip install fastapi uvicorn pydantic
+  uvicorn main:app --reload
+
+2. Frontend Setup
+
+  cd frontend
+  pip install customtkinter requests
+  python main.py
 
 
-### 📖 How to test the Server:
-1. `cd backend`
-2. `uvicorn main:app --reload`
-3. Visit `http://127.0.0` to use the interactive Swagger UI. 
+📈 Roadmap
+[x] Basic Login/Registration Flow
+
+[x] Heartbeat API Monitoring
+
+[x] Admin Panel Implementation
+
+[ ] Frame-based UI Refactoring (Current focus)
+
+[ ] Live Weather Integration
+
+[ ] SQL Database Migration (SQLite/PostgreSQL)
+
+
