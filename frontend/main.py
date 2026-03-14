@@ -9,12 +9,16 @@ class Register(ctk.CTk):
         super().__init__()
 
         self.title("UserFlow System v1.0")
-        self.geometry("400x450")
+        self.geometry("450x550")
         
+         #---------Rama Okna -------------
+        self.auth_frame = ctk.CTkFrame(self)
+        self.dash_frame = ctk.CTkFrame(self)
+
 
         #Robimy Zakładki 
 
-        self.tabview = ctk.CTkTabview(self, width = 400, height = 300)
+        self.tabview = ctk.CTkTabview(self.auth_frame, width = 400, height = 300)
         self.tabview.pack(padx = 20, pady = 20)
         self.tabview.add("Rejestracja")
         self.tabview.add("Logowanie")
@@ -22,7 +26,7 @@ class Register(ctk.CTk):
        
         
         
-
+       
 
         #---------Zakładka Rejestracja ---------------
 
@@ -48,6 +52,8 @@ class Register(ctk.CTk):
         self.register_button.pack(pady = 10)
 
 
+
+
         #----------Ukyrwamy Admina-------------
         self.tabview.delete("Admin")
         self.admin_tab_active = False
@@ -68,15 +74,30 @@ class Register(ctk.CTk):
         self.zaloguj_button = ctk.CTkButton(self.tabview.tab("Logowanie"), text = "Zaloguj", command = self.zaloguj)
         self.zaloguj_button.pack(pady = 10)
         
+        #Dajemy Drugą rame
+        self.welcome_label = ctk.CTkLabel(self.dash_frame, text = "Witamy w UserFlow System v1.0", font = ("Arial", 20))
+        self.welcome_label.pack(pady = 20)
 
-        
-        # Teraz schodzimy "piętro niżej" - bezpośrednio do głównego okna (self)
+        self.logout_button = ctk.CTkButton(self.dash_frame, text = "Wyloguj", command = self.wyloguj)
+        self.logout_button.pack(pady = 10)
+
+
+        # Pakuje tylko logowanie
+
+        self.auth_frame.pack(fill="both", expand=True  )
+
         
         self.status_dot = ctk.CTkLabel(self, text="●", text_color="grey", font=("Arial", 20))
         self.status_dot.pack(pady=10) # pack() doda to na samym dole pod tabview
 
         # 2. NA SAMYM KOŃCU URUCHAMIAMY STATUS
         self.check_api_status()
+    
+
+    #musi byc wyloguj 
+    def wyloguj(self):
+        self.dash_frame.pack_forget() 
+        self.auth_frame.pack(fill="both", expand=True)
 
     def pobierz_uzytkowników(self):
         url = "http://127.0.0.1:8000/uzytkownicy"
@@ -135,17 +156,15 @@ class Register(ctk.CTk):
             response = requests.post(url, json=data, timeout=5)
             
             if response.status_code == 200:
-                print("Zalogowano.")
-                #   sprawdzamy czy to admin
+                print("Zalogowano pomyslnie.")
+
+                #Pokazujemy po sukcisie
+                self.auth_frame.pack_forget() #Znika logowanie
+                self.dash_frame.pack(fill="both", expand=True) #Pojawia się dashboard
+                self.welcome_label.configure(text = f"Witamy w UserFlow System v1.0, {login}!")
 
                 if login.lower() == "admin" and not self.admin_tab_active:
-                    self.tabview.add("Admin")
-                    #Dodajemy wszystko do zakładki admina
-                    self.stworz_zakladke_admina()
-                    self.admin_tab_active = True
-                    self.tabview.set("Admin")
-
-
+                    pass
                  
             elif response.status_code == 401:
                 print("Błąd: Niepoprawne dane logowania.")
