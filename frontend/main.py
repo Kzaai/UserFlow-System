@@ -14,6 +14,8 @@ class Register(ctk.CTk):
          #---------Rama Okna -------------
         self.auth_frame = ctk.CTkFrame(self)
         self.dash_frame = ctk.CTkFrame(self)
+        self.admin_placeholder = ctk.CTkFrame(self.dash_frame, fg_color="transparent")
+
 
 
         #Robimy Zakładki 
@@ -96,6 +98,7 @@ class Register(ctk.CTk):
 
     #musi byc wyloguj 
     def wyloguj(self):
+        self.admin_placeholder.pack_forget()
         self.dash_frame.pack_forget() 
         self.auth_frame.pack(fill="both", expand=True)
 
@@ -162,9 +165,15 @@ class Register(ctk.CTk):
                 self.auth_frame.pack_forget() #Znika logowanie
                 self.dash_frame.pack(fill="both", expand=True) #Pojawia się dashboard
                 self.welcome_label.configure(text = f"Witamy w UserFlow System v1.0, {login}!")
+                #Sprawdany czy to admin
+                if login.lower() =="admin":
+                    self.admin_placeholder.pack(pady=20, fill="x")
+                    self.stworz_panel_admina()
 
-                if login.lower() == "admin" and not self.admin_tab_active:
-                    pass
+                
+                    
+                else:
+                    self.admin_placeholder.pack_forget()
                  
             elif response.status_code == 401:
                 print("Błąd: Niepoprawne dane logowania.")
@@ -175,18 +184,21 @@ class Register(ctk.CTk):
             print("Brak połączenia z serwerem.")
 
 
-    def stworz_zakladke_admina(self):
-        #-----------Zakładka Admina------------------
-        self.textbox = ctk.CTkTextbox(self.tabview.tab("Admin"), width = 400, height = 300 , state = "disabled")
-        self.textbox.pack(pady = 20)
+    def stworz_panel_admina(self):
+        #-----------Panel Admina------------------
+        for widget in self.admin_placeholder.winfo_children():
+            widget.destroy()
 
-        self.dowland_button = ctk.CTkButton(self.tabview.tab("Admin"), text = "Pobierz uzytkowników", command = self.pobierz_uzytkowników)
-        self.dowland_button.pack(pady = 10)
-
-        self.status_dot = ctk.CTkLabel(self.tabview.tab("Admin"), text = "●", text_color = "grey")
-        self.status_dot.pack(pady = 10)
-
+        #dodajemy elemnty to panelu
+        lab = ctk.CTkLabel(self.admin_placeholder, text = "Panel Admina", font = ("Arial", 20))
+        lab.pack(pady = 10)
         
+        self.textbox = ctk.CTkTextbox(self.admin_placeholder, width = 400, height = 150)
+        self.textbox.pack(pady = 10)
+
+        self.pobierz_uzytkowników_button = ctk.CTkButton(self.admin_placeholder, text = "Pobierz uzytkowników", command = self.pobierz_uzytkowników)
+        self.pobierz_uzytkowników_button.pack(pady = 10)
+
 
     def check_api_status(self):
         url = "http://127.0.0.1:8000/ping"
