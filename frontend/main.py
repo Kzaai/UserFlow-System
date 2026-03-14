@@ -19,6 +19,8 @@ class Register(ctk.CTk):
         self.tabview.add("Rejestracja")
         self.tabview.add("Logowanie")
         self.tabview.add("Admin")
+       
+        
         
 
 
@@ -45,6 +47,11 @@ class Register(ctk.CTk):
         self.register_button = ctk.CTkButton(self.tabview.tab("Rejestracja"), text = "Zarejestruj", command = self.zaloz_konto)
         self.register_button.pack(pady = 10)
 
+
+        #----------Ukyrwamy Admina-------------
+        self.tabview.delete("Admin")
+        self.admin_tab_active = False
+
         #-----------Zakładka Logowania------------------
         self.podajlogin = ctk.CTkLabel(self.tabview.tab("Logowanie"), text = "Podaj login: ")
         self.podajlogin.pack(pady = 10)
@@ -60,18 +67,16 @@ class Register(ctk.CTk):
 
         self.zaloguj_button = ctk.CTkButton(self.tabview.tab("Logowanie"), text = "Zaloguj", command = self.zaloguj)
         self.zaloguj_button.pack(pady = 10)
-        #-----------Zakładka Admina------------------
-        self.textbox = ctk.CTkTextbox(self.tabview.tab("Admin"), width = 400, height = 300 , state = "disabled")
-        self.textbox.pack(pady = 20)
+        
 
-        self.dowland_button = ctk.CTkButton(self.tabview.tab("Admin"), text = "Pobierz uzytkowników", command = self.pobierz_uzytkowników)
-        self.dowland_button.pack(pady = 10)
+        
+        # Teraz schodzimy "piętro niżej" - bezpośrednio do głównego okna (self)
+        
+        self.status_dot = ctk.CTkLabel(self, text="●", text_color="grey", font=("Arial", 20))
+        self.status_dot.pack(pady=10) # pack() doda to na samym dole pod tabview
 
-        self.status_dot = ctk.CTkLabel(self.tabview.tab("Admin"), text = "●", text_color = "grey")
-        self.status_dot.pack(pady = 10)
-
+        # 2. NA SAMYM KOŃCU URUCHAMIAMY STATUS
         self.check_api_status()
-
 
     def pobierz_uzytkowników(self):
         url = "http://127.0.0.1:8000/uzytkownicy"
@@ -130,8 +135,18 @@ class Register(ctk.CTk):
             response = requests.post(url, json=data, timeout=5)
             
             if response.status_code == 200:
-                print("HURAA! Zalogowano.")
-                # Tutaj możesz np. zmienić kolor przycisku na zielony
+                print("Zalogowano.")
+                #   sprawdzamy czy to admin
+
+                if login.lower() == "admin" and not self.admin_tab_active:
+                    self.tabview.add("Admin")
+                    #Dodajemy wszystko do zakładki admina
+                    self.stworz_zakladke_admina()
+                    self.admin_tab_active = True
+                    self.tabview.set("Admin")
+
+
+                 
             elif response.status_code == 401:
                 print("Błąd: Niepoprawne dane logowania.")
             else:
@@ -139,6 +154,20 @@ class Register(ctk.CTk):
                 
         except requests.exceptions.ConnectionError:
             print("Brak połączenia z serwerem.")
+
+
+    def stworz_zakladke_admina(self):
+        #-----------Zakładka Admina------------------
+        self.textbox = ctk.CTkTextbox(self.tabview.tab("Admin"), width = 400, height = 300 , state = "disabled")
+        self.textbox.pack(pady = 20)
+
+        self.dowland_button = ctk.CTkButton(self.tabview.tab("Admin"), text = "Pobierz uzytkowników", command = self.pobierz_uzytkowników)
+        self.dowland_button.pack(pady = 10)
+
+        self.status_dot = ctk.CTkLabel(self.tabview.tab("Admin"), text = "●", text_color = "grey")
+        self.status_dot.pack(pady = 10)
+
+        
 
     def check_api_status(self):
         url = "http://127.0.0.1:8000/ping"

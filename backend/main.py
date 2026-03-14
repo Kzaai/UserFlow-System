@@ -68,4 +68,4 @@ def logowanie(user: User): # Używamy tego samego modelu User co przy rejestracj
 
 @app.get("/ping")
 def ping():
-    return {"status": "success", "message": "Pong!"}
+    return {"status": "success"}
