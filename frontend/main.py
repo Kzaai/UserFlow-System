@@ -11,6 +11,24 @@ class Register(ctk.CTk):
         self.title("UserFlow System v1.0")
         self.geometry("450x550")
         
+
+        #----------------Powitanie uzytkownika/Ekran Startowy--------
+
+        self.start_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.start_label = ctk.CTkLabel(self.start_frame, text = "Witamy w UserFlow System v1.0", font = ("Arial", 20))
+        self.start_label.pack(pady = 20)
+
+
+        #Przycisk do logowania 
+
+        
+        self.go_to_login_btn = ctk.CTkButton(self.start_frame, text="Zaloguj", width=200 ,height=50, command=lambda: self.show_frame(self.auth_frame, tab="Logowanie"))
+        self.go_to_login_btn.pack(pady = 20)
+        #Teraz rejestracja
+        self.go_to_register_button = ctk.CTkButton(self.start_frame, text="Zarejestuj się ", width=200 ,height=50, command=lambda: self.show_frame(self.auth_frame, tab="Rejestracja"))
+        self.go_to_register_button.pack(pady = 20)  
+        
+        
          #---------Rama Okna -------------
         self.auth_frame = ctk.CTkFrame(self)
         self.dash_frame = ctk.CTkFrame(self)
@@ -25,6 +43,10 @@ class Register(ctk.CTk):
         self.tabview.add("Rejestracja")
         self.tabview.add("Logowanie")
         self.tabview.add("Admin")
+
+        #Przycisk wstecz
+        self.back_button = ctk.CTkButton(self.auth_frame, text = "Wstecz", command=lambda: self.show_frame(self.start_frame))
+        self.back_button.pack(pady = 10)
        
         
         
@@ -92,9 +114,27 @@ class Register(ctk.CTk):
         self.status_dot = ctk.CTkLabel(self, text="●", text_color="grey", font=("Arial", 20))
         self.status_dot.pack(pady=10) # pack() doda to na samym dole pod tabview
 
-        # 2. NA SAMYM KOŃCU URUCHAMIAMY STATUS
+        # 2. NA SAMYM KOŃCU URUCHAMIAMY  I startujemy
+        self.show_frame(self.start_frame)
         self.check_api_status()
-    
+    def show_frame(self, frame_to_show, tab=None):
+        #Ukyrwamy całość
+        self.start_frame.pack_forget()
+        self.auth_frame.pack_forget()
+        self.dash_frame.pack_forget()
+
+
+        frame_to_show.pack(fill="both", expand=True)
+
+        if tab :
+            self.tabview.set(tab)
+
+        if tab is not None and frame_to_show == self.auth_frame:
+            try:
+                self.tabview.set(tab)
+            except Exception as e:
+                print(f"Bład ustawinia zakłądki: {e} ")
+
 
     #musi byc wyloguj 
     def wyloguj(self):
@@ -159,6 +199,7 @@ class Register(ctk.CTk):
             response = requests.post(url, json=data, timeout=5)
             
             if response.status_code == 200:
+                self.show_frame(self.dash_frame)
                 print("Zalogowano pomyslnie.")
 
                 #Pokazujemy po sukcisie

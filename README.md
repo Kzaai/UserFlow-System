@@ -1,41 +1,36 @@
-🚀 UserFlow System v1.1
-A professional, two-tier desktop management system built with Python and FastAPI. The project demonstrates a full data flow between a modern GUI and a RESTful backend, including role-based access and real-time monitoring.
+# 🚀 UserFlow System v1.1
 
-🏗️ Architecture & Tech Stack
-Backend: High-performance API built with FastAPI.
+A professional, asynchronous desktop management system built with **Python** and **FastAPI**. This project demonstrates a complete data lifecycle: from a modern, stateful GUI to a RESTful backend with role-based access control.
 
-Data Validation: Strict modeling using Pydantic.
+## 🏗️ Architecture & Tech Stack
 
-Database: Persistent storage using a flat-file JSON system (Scalable to SQL).
+* **Backend:** High-performance REST API built with **FastAPI** & **Uvicorn**.
+* **Data Integrity:** Strict schema validation using **Pydantic** models.
+* **Database:** Persistent storage using a flat-file JSON system (Scalable to SQL).
+* **Frontend:** Modern, hardware-accelerated UI using **CustomTkinter**.
+* **State Management:** Dynamic UI transitions using a **Frame-based architecture** (`pack_forget` logic).
+* **Asynchronous Operations:** Non-blocking background tasks for real-time API monitoring.
 
-Frontend: Modern Desktop UI built with CustomTkinter.
+## 🌟 Key Features
 
-Frame Switching: Dynamic UI state management for seamless transitions between Auth and Dashboard.
+* **Secure Authentication:** Full login/registration flow with real-time server-side validation.
+* **Role-Based Access Control (RBAC):** Intelligent UI that dynamically injects the **Administrative Panel** only for authorized users.
+* **Real-time API Heartbeat:** A recursive monitoring system (`.after()`) that tracks server availability with a visual status indicator.
+* **Modular GUI Design:** Clean separation of concerns between Authentication, User Dashboard, and Admin tools.
+* **Live Weather Integration (In Progress):** Integration with OpenWeatherMap API to provide contextual data.
 
-Asynchronous Tasks: Background monitoring and data fetching without UI freezing.
+## 🚀 Quick Start
 
-🌟 Key Features
-Secure Authentication: Integrated login and registration flow with masked password inputs.
+### 1. Backend Setup
+```bash
+cd backend
+pip install fastapi uvicorn pydantic
+uvicorn main:app --reload
 
-Dynamic Dashboard: Post-login user interface that adapts to the user's role.
+cd frontend
+pip install customtkinter requests
+python main.py
 
-Real-time API Heartbeat: A background "Status Dot" monitor that pings the server every 5 seconds using recursive .after() methods.
-
-Role-Based Access (RBAC): Hidden Administrative Panel that unlocks only for users with specific credentials.
-
-External API Integration (In Progress): Live weather data fetching using the OpenWeatherMap API to enhance the user dashboard.
-
-1. Backend Setup
-
-  cd backend
-  pip install fastapi uvicorn pydantic
-  uvicorn main:app --reload
-
-2. Frontend Setup
-
-  cd frontend
-  pip install customtkinter requests
-  python main.py
 
 
 📈 Roadmap
@@ -43,12 +38,12 @@ External API Integration (In Progress): Live weather data fetching using the Ope
 
 [x] Heartbeat API Monitoring
 
-[x] Admin Panel Implementation
+[x] Frame-based UI Architecture (Stateful Views)
 
-[ ] Frame-based UI Refactoring (Current focus)
+[x] Admin Panel Implementation (RBAC)
 
-[ ] Live Weather Integration
+[ ] Live Weather Integration (Current Focus)
 
-[ ] SQL Database Migration (SQLite/PostgreSQL)
+[ ] Start Screen Selection (Login vs Register)
 
-
+[ ] SQL Database Migration (PostgreSQL)
