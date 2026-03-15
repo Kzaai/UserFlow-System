@@ -85,11 +85,25 @@ class Register(ctk.CTk):
         self.admin_tab_active = False
 
         #--------Panel Uzytkownika-------------
-        self.welcome_label = ctk.CTkLabel(self.dash_frame, text = "Witamy w UserFlow System v1.0", font = ("Arial", 20))
+        self.dash_frame = ctk.CTkFrame(self)
+        
+
+        #Napis powitalny 
+        self.welcome_label = ctk.CTkLabel(self.dash_frame, text = "UserFlow System 1.0" , font = ("Arial", 20))
         self.welcome_label.pack(pady = 10)
 
-        self.wyloguj_button = ctk.CTkButton(self.dash_frame, text = "Wyloguj", command = self.wyloguj)
-        self.wyloguj_button.pack(pady = 10)
+        #Kontenery
+        self.admin_placeholder = ctk.CTkFrame(self.dash_frame, fg_color="transparent")
+        self.user_placeholder = ctk.CTkFrame(self.dash_frame, fg_color="transparent")
+
+        #Jeden przycisk wyloguje ,a nie 100
+
+        self.logout_button = ctk.CTkButton(self.dash_frame, text = "Wyloguj", command = self.wyloguj)
+        self.logout_button.pack(pady = 10)
+
+        #Moze przetani  sięnakładać 
+        self.admin_placeholder.pack(side ="top", fill="both", expand = True )
+        self.user_placeholder.pack(side = "top", fill="both", expand = True )
 
         #-----------Zakładka Logowania------------------
         self.podajlogin = ctk.CTkLabel(self.tabview.tab("Logowanie"), text = "Podaj login: ")
@@ -107,12 +121,7 @@ class Register(ctk.CTk):
         self.zaloguj_button = ctk.CTkButton(self.tabview.tab("Logowanie"), text = "Zaloguj", command = self.zaloguj)
         self.zaloguj_button.pack(pady = 10)
         
-        #Dajemy Drugą rame
-        self.welcome_label = ctk.CTkLabel(self.dash_frame, text = "Witamy w UserFlow System v1.0", font = ("Arial", 20))
-        self.welcome_label.pack(pady = 20)
-
-        self.logout_button = ctk.CTkButton(self.dash_frame, text = "Wyloguj", command = self.wyloguj)
-        self.logout_button.pack(pady = 10)
+        
 
 
         # Pakuje tylko logowanie
@@ -148,9 +157,18 @@ class Register(ctk.CTk):
     #musi byc wyloguj 
     def wyloguj(self):
         self.admin_placeholder.pack_forget()
+        self.user_placeholder.pack_forget()
+
+        #Czyszcz placeholder
+        for widget in self.admin_placeholder.winfo_children():
+            widget.destroy()
+        for widget in self.user_placeholder.winfo_children():
+            widget.destroy()
+
+        #znowu logowanie
         self.dash_frame.pack_forget()
-        self.user_frame.pack_forget() 
-        self.auth_frame.pack(fill="both", expand=True)
+        self.show_frame(self.auth_frame, tab="Logowanie")
+
 
     def pobierz_uzytkowników(self):
         url = "http://127.0.0.1:8000/uzytkownicy"
@@ -225,7 +243,7 @@ class Register(ctk.CTk):
                 else:
                     self.admin_placeholder.pack_forget()
                     self.user_placeholder.pack(pady = 20, fill="x")
-                    self.stworz_panel_admina(login)
+                    self.stworz_panel_uzytkownika(login)
                  
             elif response.status_code == 401:
                 print("Błąd: Niepoprawne dane logowania.")
@@ -251,7 +269,7 @@ class Register(ctk.CTk):
         self.pobierz_uzytkowników_button = ctk.CTkButton(self.admin_placeholder, text = "Pobierz uzytkowników", command = self.pobierz_uzytkowników)
         self.pobierz_uzytkowników_button.pack(pady = 10)
 
-    def stworz_panel_uzytkownika(self):
+    def stworz_panel_uzytkownika(self, login):
         for widget in self.user_placeholder.winfo_children():
             widget.destroy()
 
