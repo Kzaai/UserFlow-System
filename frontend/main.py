@@ -32,7 +32,9 @@ class Register(ctk.CTk):
          #---------Rama Okna -------------
         self.auth_frame = ctk.CTkFrame(self)
         self.dash_frame = ctk.CTkFrame(self)
+        self.user_frame = ctk.CTkFrame(self)
         self.admin_placeholder = ctk.CTkFrame(self.dash_frame, fg_color="transparent")
+        self.user_placeholder = ctk.CTkFrame(self.dash_frame, fg_color="transparent")
 
 
 
@@ -81,6 +83,13 @@ class Register(ctk.CTk):
         #----------Ukyrwamy Admina-------------
         self.tabview.delete("Admin")
         self.admin_tab_active = False
+
+        #--------Panel Uzytkownika-------------
+        self.welcome_label = ctk.CTkLabel(self.dash_frame, text = "Witamy w UserFlow System v1.0", font = ("Arial", 20))
+        self.welcome_label.pack(pady = 10)
+
+        self.wyloguj_button = ctk.CTkButton(self.dash_frame, text = "Wyloguj", command = self.wyloguj)
+        self.wyloguj_button.pack(pady = 10)
 
         #-----------Zakładka Logowania------------------
         self.podajlogin = ctk.CTkLabel(self.tabview.tab("Logowanie"), text = "Podaj login: ")
@@ -139,7 +148,8 @@ class Register(ctk.CTk):
     #musi byc wyloguj 
     def wyloguj(self):
         self.admin_placeholder.pack_forget()
-        self.dash_frame.pack_forget() 
+        self.dash_frame.pack_forget()
+        self.user_frame.pack_forget() 
         self.auth_frame.pack(fill="both", expand=True)
 
     def pobierz_uzytkowników(self):
@@ -212,9 +222,10 @@ class Register(ctk.CTk):
                     self.stworz_panel_admina()
 
                 
-                    
                 else:
                     self.admin_placeholder.pack_forget()
+                    self.user_placeholder.pack(pady = 20, fill="x")
+                    self.stworz_panel_admina(login)
                  
             elif response.status_code == 401:
                 print("Błąd: Niepoprawne dane logowania.")
@@ -239,6 +250,26 @@ class Register(ctk.CTk):
 
         self.pobierz_uzytkowników_button = ctk.CTkButton(self.admin_placeholder, text = "Pobierz uzytkowników", command = self.pobierz_uzytkowników)
         self.pobierz_uzytkowników_button.pack(pady = 10)
+
+    def stworz_panel_uzytkownika(self):
+        for widget in self.user_placeholder.winfo_children():
+            widget.destroy()
+
+        #Główna strona
+
+        profile_card = ctk.CTkFrame(self.user_placeholder, corner_radius=15, fg_color = "#2b2b2b", text_color = "grey")
+        profile_card.pack(pady =20, padx= 20, fill="x")
+
+        title = ctk.CTkLabel(profile_card, text = "Profil", font = ("Arial", 12))
+        title.pack(pady = (10, 5))
+
+        #wyswietlamy login
+
+        self.user_info_label = ctk.CTkLabel(profile_card, text = "Profil Użytkownika", font = ("Arial", 12))
+        self.user_info_label.pack(pady=(0,15))
+
+
+        
 
 
     def check_api_status(self):
