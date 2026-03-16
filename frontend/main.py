@@ -4,7 +4,47 @@ import requests
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
 
+
+
+
+
+
+class Dashboard(ctk.CTkFrame):
+    def __init__(self, master, title , **kwargs):
+        #Kolor tło obramowanie
+        super().__init__(master, fg_color="#2b2b2b", corner_radius=15, border_width=1,
+        border_color="#3d3d3d", **kwargs)
+    #Ustawmy kolumne z indksem 0 zeby wypelmnialo caly ekrans
+        self.grid_columnconfigure(0, weight=1)
+
+
+        #Umieszczamy to w pierwszym rzedzie 
+        self.label_title = ctk.CTkLabel(self, text = title.upper() , font = ("Arial", 12))
+        self.label_title.grid(row = 0, column = 0, pady=(10, 0))
+
+        #Głowna zawartośc
+        self.label_content = ctk.CTkLabel(self, text = "--", font = ("Arial", 32))
+        self.label_content.grid(row = 1, column = 0, pady=(15, 5))
+
+        #Stopka
+        self.label_footer = ctk.CTkLabel(self, text = "Ładowanie...", font = ("Arial", 11))
+        self.label_footer.grid(row = 2, column = 0, pady=(5, 15))
+
+    def aktualizuj_dane(self, wartosc ,opis , kolor= "#ffffff"):
+        self.label_content.configure (text=wartosc, text_color=kolor)
+        self.label_footer.configure(text=opis)
+
+    def ustaw_pogode(self,temp,miasto):
+        self.label_content.configure (text=f"{temp}°C", text_color="#2ecc71")
+        self.label_footer.configure(text=f"Lokalizacja : {miasto}")
+
+
+        
+
+
+
 class Register(ctk.CTk):
+
     def __init__(self):
         super().__init__()
 
@@ -273,22 +313,72 @@ class Register(ctk.CTk):
         for widget in self.user_placeholder.winfo_children():
             widget.destroy()
 
-        #Główna strona
+        #Tworzymt główną siatke
 
-        profile_card = ctk.CTkFrame(self.user_placeholder, corner_radius=15, fg_color = "#2b2b2b", text_color = "grey")
-        profile_card.pack(pady =20, padx= 20, fill="x")
+        container = ctk.CTkFrame(self.user_placeholder, fg_color="transparent")
+        container.pack(fill= "both", expand=True, padx=20, pady=20)
 
-        title = ctk.CTkLabel(profile_card, text = "Profil", font = ("Arial", 12))
-        title.pack(pady = (10, 5))
+        #definiujemy kolumny
 
-        #wyswietlamy login
+        container.grid_columnconfigure(0, weight=1)
+        container.grid_columnconfigure(1, weight=1)
 
-        self.user_info_label = ctk.CTkLabel(profile_card, text = "Profil Użytkownika", font = ("Arial", 12))
-        self.user_info_label.pack(pady=(0,15))
+        #Wstawiamy kafle z klasy która zrobiłem wyżej
+        self.title_weather = Dashboard(container, title = "Pogoda")
+        self.title_weather.grid(row = 0, column = 0, padx=10, pady=10, sticky="nsew")
 
+        #Giełda
+
+        self.title_stock = Dashboard(container, title="Giełda")
+        self.title_stock.grid(row = 0, column = 1, padx=10, pady=10, sticky="nsew")
+
+
+        #Pobieramy dane z pogody
+
+        self.pobierz_pogode()
+        #Pobieramy dane z giełdy
+
+        self.pobierz_bitcoin()
+
+    def pobierz_pogode(self):
+        api_key = "557602d9a5272d4aecae0e56205dc0c0"
+        miasto = "Szczecin"
+
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={miasto}&appid={api_key}&units=metric"
+        try:
+            
+            r = requests.get(url, timeout=5)
+            if r.status_code == 200:
+                
+                dane = r.json()
+                temperatura = dane["main"]["temp"]
+                self.title_weather.ustaw_pogode(round(temperatura), miasto)
+            else:
+                print(f"Błąd serwera: {r.status_code}")
+                print(f"Informacja od serwera: {r.text}")
+
+        except:
+            print("Brak połączenia z serwerem.{e}")
 
         
+    def pobierz_bitcoin(self):
+       
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+        try:
+            r = requests.get(url, timeout=5)
+            if r.status_code == 200:
+                dane = r.json()
+                cena = r.json()["bitcoin"]["usd"]
+                #Modta universalna moze zadziała
 
+                self.title_stock.aktualizuj_dane(f"${cena:,}", "Kurs: BITCOIN (USD)" , "#f39c12")
+                print(f"Kurs bitcoina: {cena}")
+            else:
+                print(f"Błąd serwera: {r.status_code}")
+                print(f"Informacja od serwera: {r.text}")
+
+        except:
+            print("Brak połączenia z serwerem.{e}")
 
     def check_api_status(self):
         url = "http://127.0.0.1:8000/ping"
