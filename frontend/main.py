@@ -1,5 +1,9 @@
 import customtkinter as ctk
 import requests
+import os 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
@@ -23,7 +27,7 @@ class Dashboard(ctk.CTkFrame):
         self.label_title.grid(row = 0, column = 0, pady=(10, 0))
 
         #Głowna zawartośc
-        self.label_content = ctk.CTkLabel(self, text = "--", font = ("Arial", 32))
+        self.label_content = ctk.CTkLabel(self, text = "--", font = ("Arial", 14), wraplength=150)
         self.label_content.grid(row = 1, column = 0, pady=(15, 5))
 
         #Stopka
@@ -322,6 +326,7 @@ class Register(ctk.CTk):
 
         container.grid_columnconfigure(0, weight=1)
         container.grid_columnconfigure(1, weight=1)
+        container.grid_columnconfigure(2, weight=1)
 
         #Wstawiamy kafle z klasy która zrobiłem wyżej
         self.title_weather = Dashboard(container, title = "Pogoda")
@@ -332,7 +337,10 @@ class Register(ctk.CTk):
         self.title_stock = Dashboard(container, title="Giełda")
         self.title_stock.grid(row = 0, column = 1, padx=10, pady=10, sticky="nsew")
 
+        #Kafle od newsów
 
+        self.title_news = Dashboard(container, title="Newsy")
+        self.title_news.grid(row = 0, column = 2, padx=10, pady=10, sticky="nsew")
         #Pobieramy dane z pogody
 
         self.pobierz_pogode()
@@ -340,9 +348,16 @@ class Register(ctk.CTk):
 
         self.pobierz_bitcoin()
 
+        #Tutaj newsy ze świata
+        self.pobierz_newsy()
+
+
+
+    
+
     def pobierz_pogode(self):
-        api_key = "557602d9a5272d4aecae0e56205dc0c0"
-        miasto = "Szczecin"
+        api_key = os.getenv("WEATHER_API_KEY")
+        miasto = "Gdańsk"
 
         url = f"http://api.openweathermap.org/data/2.5/weather?q={miasto}&appid={api_key}&units=metric"
         try:
@@ -357,7 +372,7 @@ class Register(ctk.CTk):
                 print(f"Błąd serwera: {r.status_code}")
                 print(f"Informacja od serwera: {r.text}")
 
-        except:
+        except Exception as e:
             print("Brak połączenia z serwerem.{e}")
 
         
@@ -377,7 +392,31 @@ class Register(ctk.CTk):
                 print(f"Błąd serwera: {r.status_code}")
                 print(f"Informacja od serwera: {r.text}")
 
-        except:
+        except Exception as e:
+            print("Brak połączenia z serwerem.{e}")
+
+    def pobierz_newsy(self):
+        url = "https://ok.surf/api/v1/cors/news-feed"
+
+        try:
+            r = requests.get(url, timeout=5)
+            if r.status_code == 200:
+                dane = r.json()
+
+                # Wyswietlamy newsy
+                news_tytul = dane["Business"][0]["title"]
+
+                #Skracamy tytuł żebynie wywaliło poza kafel
+                if len(news_tytul) > 40:
+                    news_tytul = news_tytul[:37] + "..."
+
+                self.title_news.aktualizuj_dane(news_tytul , "Najnowsze nowinki", "#3489db")
+
+            else:
+                print(f"Błąd serwera: {r.status_code}")
+                print(f"Informacja od serwera: {r.text}")
+
+        except Exception as e:
             print("Brak połączenia z serwerem.{e}")
 
     def check_api_status(self):

@@ -13,3 +13,5 @@ frontend/*.json
 
 # Ignoruj ustawienia VS Code
 .vscode/
+#Ingorujem moje hasła i API KEY
+.env
