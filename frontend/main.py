@@ -62,6 +62,9 @@ class Register(ctk.CTk):
         self.start_label = ctk.CTkLabel(self.start_frame, text = "Witamy w UserFlow System v1.0", font = ("Arial", 20))
         self.start_label.pack(pady = 20)
 
+        self.news_index = 0
+        self.wszystkie_newsy = []
+
 
         #Przycisk do logowania 
 
@@ -375,6 +378,8 @@ class Register(ctk.CTk):
         except Exception as e:
             print("Brak połączenia z serwerem.{e}")
 
+        self.after(30000, self.pobierz_pogode)
+
         
     def pobierz_bitcoin(self):
        
@@ -395,29 +400,34 @@ class Register(ctk.CTk):
         except Exception as e:
             print("Brak połączenia z serwerem.{e}")
 
+        self.after(30000, self.pobierz_bitcoin)
+
     def pobierz_newsy(self):
         url = "https://ok.surf/api/v1/cors/news-feed"
 
         try:
-            r = requests.get(url, timeout=5)
-            if r.status_code == 200:
-                dane = r.json()
+            if not self.wszystkie_newsy:
+                r = requests.get(url, timeout=5)
+                if r.status_code == 200:
+                    self.wszystkie_newsy = r.json().get("Business", [])
+            if self.wszystkie_newsy:
+                news = self.wszystkie_newsy[self.news_index]
+                tytul = news["title"]
 
-                # Wyswietlamy newsy
-                news_tytul = dane["Business"][0]["title"]
 
-                #Skracamy tytuł żebynie wywaliło poza kafel
-                if len(news_tytul) > 40:
-                    news_tytul = news_tytul[:37] + "..."
+                if len(tytul) > 50:
+                    display_title = tytul[:47] + "..."
 
-                self.title_news.aktualizuj_dane(news_tytul , "Najnowsze nowinki", "#3489db")
+                self.title_news.aktualizuj_dane(display_title, f"News {self.news_index+1} z {len(self.wszystkie_newsy)}", "#f39c12")
+                self.news_index = (self.news_index + 1) % len(self.wszystkie_newsy)
+                print(f"News nr {self.news_index+1} z {len(self.wszystkie_newsy)}")
 
-            else:
-                print(f"Błąd serwera: {r.status_code}")
-                print(f"Informacja od serwera: {r.text}")
 
+        
+            
         except Exception as e:
             print("Brak połączenia z serwerem.{e}")
+        self.after(15000, self.pobierz_newsy)
 
     def check_api_status(self):
         url = "http://127.0.0.1:8000/ping"
