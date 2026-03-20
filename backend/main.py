@@ -2,6 +2,10 @@ from fastapi import FastAPI , HTTPException
 from pydantic import BaseModel
 import json
 import os
+from passlib.context import CryptContext
+
+#Konfiguracja szyfrowania
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 
@@ -19,9 +23,20 @@ DB_PATH = os.path.join(BASE_DIR, "uzytkownicy.json")
 # 2. Funkcja pomocnicza
 def wczytaj_baze():
     if not os.path.exists(DB_PATH):
-        return [] # Zwracamy listę, bo będziemy trzymać wielu użytkowników
+        #Iniclalizacja jesli nie istnieje 
+        with open(DB_PATH, "w", encoding="utf-8") as f:
+            json.dump([], f)
+        return[]
+    
     with open(DB_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+        try:
+            dane = json.load(f)
+            return dane if isinstance(dane, list) else []
+        except json.JSONDecodeError:
+            return []
+        
+            
+        
 
 app = FastAPI()
 
@@ -32,16 +47,25 @@ app = FastAPI()
 def register(user: User):
     baza = wczytaj_baze()
 
-    #Zamieniamy usera na słownik
 
-    nowy_uzytkownik = user.dict()
+    if any(u["login"] == user.login for u in baza):
+        raise HTTPException(status_code=400, detail="Użytkownik o podanym loginie już istnieje")
+    #Zaczynamy szyforwac moze wyjdzie 
+    hashed_password = pwd_context.hash(user.haslo)
+    #slownik leci recznie zeby zahaszakokosakoa
 
-    baza.append(nowy_uzytkownik) #Dodajemy do listy
+    nowy_uzytkownik ={
+        "login": user.login,
+        "haslo": hashed_password, #Zadziała jak nic
+        "firma": user.firma
+    }
 
-    #Zapisujemy do pliku 
+    baza.append(nowy_uzytkownik)
 
-    with open(DB_PATH,"w", encoding="utf-8") as f:
+    with open(DB_PATH, "w", encoding="utf-8") as f:
         json.dump(baza, f , indent=4, ensure_ascii=False)
+    return {"status": "success", "message": "Konto zostało zarejestrowane."}
+
 
 @app.get("/uzytkownicy")
 def get_users():
@@ -59,11 +83,11 @@ def logowanie(user: User): # Używamy tego samego modelu User co przy rejestracj
     baza = wczytaj_baze()
 
     for uzytkownik in baza:
-        if uzytkownik["login"] == user.login and uzytkownik["haslo"] == user.haslo:
-            return {"status": "success", "message": "Zalogowano pomyślnie", "user": uzytkownik["login"]}
-    
-    # Jeśli pętla się skończy i nic nie znajdzie:
-    raise HTTPException(status_code=401, detail="Błędny login lub hasło")
+        if uzytkownik["login"] == user.login:
+            if pwd_context.verify(user.haslo, uzytkownik["haslo"]):
+                return {"status": "success", "message": "Zalogowano pomyslnie.", "user": uzytkownik["login"]}
+            
+    raise HTTPException(status_code=401, detail="Nieprawidłowe hasło lub login.")
 
 
 @app.get("/ping")
